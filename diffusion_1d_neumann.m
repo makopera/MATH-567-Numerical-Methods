@@ -18,9 +18,9 @@ u_exact = @(x) exp(x) + (sigma-exp(xa))*(x - xb) + b - exp(xb);
 %   u(x_b)  = b
 % using a central finite difference method
 
-neumann_method= 1; %1 - first order one sided difference
+neumann_method= 2; %1 - first order one sided difference
 
-N = 100; %number of internal gridpoints
+N = 5; %number of internal gridpoints
 h = L/(N+1); %interval length
 M=N+2; %account for all points including boundary
 
@@ -43,13 +43,17 @@ switch neumann_method
     case 2 
         A(1,1) = -h;
         A(1,2) = h;
+    case 3
+        A(1,1) = 3*h/2;
+        A(1,2) = -2*h;
+        A(1,3) = h/2;
 end
 
 %modify last row to represent BC
 A(M,M-1) = 0;
 A(M,M) = h^2;
 
-A = A/h^2;
+A = A/h^2
 
 %NOTE: for large matrices it is a better idea to use sparse matrix
 %representation
@@ -63,6 +67,8 @@ switch neumann_method
         g(1) = sigma;
     case 2
         g(1) = sigma + h/2*f(x(1));
+    case 3
+        g(1) = sigma;
 end
 
 
@@ -87,7 +93,7 @@ set(gca,'FontSize',18)
 
 %% Convergence study
 
-neumann_method= 2; %1 - first order one sided difference
+neumann_method= 1; %1 - first order one sided difference
 N = 5;
 n_tests = 5;
 error = zeros(1,n_tests);
@@ -116,6 +122,10 @@ for k=1:n_tests
         case 2 
             A(1,1) = -h;
             A(1,2) = h;
+        case 3
+            A(1,1) = 3*h/2;
+            A(1,2) = -2*h;
+            A(1,3) = h/2;
     end
 
     %modify last row to represent BC
@@ -136,6 +146,8 @@ for k=1:n_tests
             g(1) = sigma;
         case 2
             g(1) = sigma + h/2*f(x(1));
+        case 3
+            g(1) = sigma;
     end
     g(M) = b;
 
@@ -171,7 +183,7 @@ set(gca,'FontSize',18)
 
 %% Compare all the methods
  
-for neumann_method = 1:2
+for neumann_method = 1:3
 
     N = 5;
     n_tests = 5;
@@ -201,6 +213,10 @@ for neumann_method = 1:2
             case 2
                 A(1,1) = -h;
                 A(1,2) = h;
+            case 3
+                A(1,1) = 3*h/2;
+                A(1,2) = -2*h;
+                A(1,3) = h/2;
         end
 
         %modify last row to represent BC
@@ -221,6 +237,8 @@ for neumann_method = 1:2
                 g(1) = sigma;
             case 2
                 g(1) = sigma + h/2*f(x(1));
+            case 3
+                g(1) = sigma;
         end
         g(M) = b;
 
@@ -251,6 +269,7 @@ end
 %plot the convergence plot
     loglog(h_list,error_methods(1,:),'o','LineWidth',2,'MarkerSize',10)
     hold on
+
     log_err = polyval(c_methods(1,:), log(h_list));
     fprintf('Least square fit convergence rate = %f\n',c_methods(1,1))
     p = loglog(h_list,exp(log_err),'--k')
@@ -258,15 +277,21 @@ end
     text(1.1*h_list(end),error_methods(1,end),txt,'FontSize',15); %put text label on the figure
 
     loglog(h_list,error_methods(2,:),'o','LineWidth',2,'MarkerSize',10)
-
     log_err = polyval(c_methods(2,:), log(h_list));
     fprintf('Least square fit convergence rate = %f\n',c_methods(2,1))
     p = loglog(h_list,exp(log_err),'--k')
     txt = ['slope = ',num2str(c_methods(2,1))];
     text(1.1*h_list(end),error_methods(2,end),txt,'FontSize',15); %put text label on the figure
 
+    loglog(h_list,error_methods(3,:),'s','LineWidth',2,'MarkerSize',10)
+    log_err = polyval(c_methods(3,:), log(h_list));
+    fprintf('Least square fit convergence rate = %f\n',c_methods(3,1))
+    p = loglog(h_list,exp(log_err),'--k')
+    txt = ['slope = ',num2str(c_methods(3,1))];
+    text(1.5*h_list(end),1.5*error_methods(3,end),txt,'FontSize',15); %put text label on the figure
 
     hold off
     grid on;
     xlabel('h'); ylabel('L2 error')
     set(gca,'FontSize',18)
+    
