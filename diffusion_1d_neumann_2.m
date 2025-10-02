@@ -1,9 +1,9 @@
 clear
 %forcing function
-f = @(x) exp(x);
+f = @(x) 0*x;
 
 sigma = 0;
-gamma = 0;
+gamma = 1;
 b = 2;
 xa = 0;
 xb = 1;
@@ -21,7 +21,7 @@ u_exact = @(x) exp(x) + (sigma-exp(xa))*(x - xb) + b - exp(xb);
 
 neumann_method= 3; %1 - first order one sided difference
 
-N = 5; %number of internal gridpoints
+N = 100; %number of internal gridpoints
 h = L/(N+1); %interval length
 M=N+2; %account for all points including boundary
 
@@ -87,13 +87,13 @@ u = A\g;
 
 %plot solution
 xx= linspace(xa,xb);
-plot(xx,u_exact(xx),'--k','LineWidth',2)
-hold on;
+%plot(xx,u_exact(xx),'--k','LineWidth',2)
+%hold on;
 plot(x,u,'o','LineWidth',2,'MarkerSize',10);
 %plot(xa,a,'ob','LineWidth',2,'MarkerSize',10);
 %plot(xb,b,'ob','LineWidth',2,'MarkerSize',10);
 
-hold off
+%hold off
 xlabel('x'); ylabel('u(x)');
 grid on
 set(gca,'FontSize',18)
